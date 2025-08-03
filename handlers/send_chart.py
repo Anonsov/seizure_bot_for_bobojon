@@ -10,7 +10,7 @@ send_chart_router = Router()
 
 
 @send_chart_router.message(lambda message: message.text == "Отправить визуализацию" or
-                                           message.text and message.text.startswith("/send_chart"))
+                                           message.text and message.text.startswith("/send_visualisation"))
 async def send_charts_handler(message: Message):
     user_id = message.from_user.id
 
