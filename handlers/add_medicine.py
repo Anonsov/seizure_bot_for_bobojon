@@ -25,15 +25,15 @@ class AddMedicineStates(StatesGroup):
 async def add_medicine_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     if not is_admin_function(user_id):
-        await message.answer("У вас нет прав для добавления записей о лекарствах")
+        await message.answer("У вас нет прав для добавления записей о лекарствах 🚫", parse_mode="MarkdownV2")
         return
 
     await state.set_state(AddMedicineStates.waiting_for_date)
     await message.answer(
-        "Введите дату в формате ДД.ММ.ГГГГ (например, 18.07.2024)",
-        reply_markup=None
+        "Введите дату в формате ДД\\.ММ\\.ГГГГ \\(например, 18\\.07\\.2024\\) 📅",
+        reply_markup=None,
+        parse_mode="MarkdownV2"
     )
-
 
 @add_medicine_router.message(AddMedicineStates.waiting_for_date)
 async def process_date(message: Message, state: FSMContext):
@@ -46,12 +46,14 @@ async def process_date(message: Message, state: FSMContext):
         await state.set_state(AddMedicineStates.waiting_for_comment)
 
         await message.answer(
-            "Введите информацию о лечении или комментарий:",
-            reply_markup=None
+            "Введите информацию о лечении или комментарий: 📝",
+            reply_markup=None,
+            parse_mode="MarkdownV2"
         )
     except ValueError:
         await message.answer(
-            "Неверный формат даты. Используйте формат ДД.ММ.ГГГГ (например, 18.07.2024)"
+            "Неверный формат даты\\. Используйте формат ДД\\.ММ\\.ГГГГ \\(например, 18\\.07\\.2024\\) 📅",
+            parse_mode="MarkdownV2"
         )
 
 
@@ -67,15 +69,16 @@ async def process_comment(message: Message, state: FSMContext):
 
     if result:
         await message.answer(
-            f"Данные о лечении сохранены:\n"
-            f"Дата: {user_data['formatted_date']}\n"
-            f"Комментарий: {comment}",
-            reply_markup=main_kb()
+            f"✅ Данные о лечении сохранены:\n"
+            f"📅 Дата: `{user_data['formatted_date']}`\n"
+            f"📝 Комментарий: `{comment}`",
+            reply_markup=main_kb(),
+            parse_mode="MarkdownV2"
         )
     else:
-        await message.answer("Произошла ошибка при сохранении данных.",
-                             reply_markup=main_kb())
-
+        await message.answer("❌ Произошла ошибка при сохранении данных.",
+                             reply_markup=main_kb(),
+                             parse_mode="MarkdownV2")
     await state.clear()
 
 

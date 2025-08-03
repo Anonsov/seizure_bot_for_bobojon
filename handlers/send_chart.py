@@ -28,7 +28,7 @@ async def send_charts_handler(message: Message):
             f.write(interval_buffer.getvalue())
         await message.answer_photo(
             FSInputFile(temp_interval_path),
-            caption="График интервалов между приступами"
+            caption="График интервалов между приступами 📊"
         )
         duration_buffer = chart_gen.generate_duration_chart()
 
@@ -38,11 +38,11 @@ async def send_charts_handler(message: Message):
 
         await message.answer_photo(
             FSInputFile(temp_duration_path),
-            caption="График продолжительности приступов"
+            caption="График продолжительности приступов 📊"
         )
 
         os.remove(temp_interval_path)
         os.remove(temp_duration_path)
 
     except Exception as e:
-        await message.answer(f"Ошибка при генерации графиков: {str(e)}")
+        await message.answer(f"❌ Ошибка при генерации графиков: {str(e)}")

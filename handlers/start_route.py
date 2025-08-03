@@ -8,7 +8,7 @@ start_router = Router()
 @start_router.message(CommandStart())
 async def start_handler(message: Message):
     await message.answer(
-        'Здравстуйте, это бот для трэкинга судорог Бобочона',
+        f"Привет, {message.from_user.first_name}! 👋 Я бот для трэкинга судорог Бобочона. Рад помочь вам!",
         reply_markup=main_kb()
     )
 

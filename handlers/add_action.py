@@ -28,16 +28,17 @@ async def add_action_handler(message: Message, state: FSMContext):
     checker = is_admin_function(user_id)
     if checker:
         await message.answer(
-            f"{checker}, пожалуйста напишите когда случился приступ:\n\n"
-            f"Примеры форматов даты и времени:\n"
-            f"- 25.12.2023 14:30\n"
-            f"- 25/12/2023 в 2 часа дня\n"
-            f"- 25-12-2023 примерно 2:30 вечера\n"
-            f"- 25.12.23 7 утра"
+            f"*{checker}*, пожалуйста напишите когда случился приступ:\n\n"
+            f"*📅 Примеры форматов даты и времени:*\n"
+            f"• `25.12.2023 14:30`\n"
+            f"• `25/12/2023 в 2 часа дня`\n"
+            f"• `25-12-2023 примерно 2:30 вечера`\n"
+            f"• `25.12.23 7 утра`",
+            parse_mode="MarkdownV2"
         )
         await state.set_state(AddActionStates.waiting_for_datetime)
     else:
-        await message.answer("Вы не имеете права добавлять приступы")
+        await message.answer("Вы не имеете права добавлять приступы, берите разрешение у Акобира")
 
 
 @add_action_router.message(AddActionStates.waiting_for_datetime)
@@ -54,8 +55,9 @@ async def process_datetime(message: Message, state: FSMContext):
         )
     else:
         await message.answer(
-            "Не удалось распознать дату и время. Пожалуйста, попробуйте еще раз.\n"
-            "Например: 25.12.2023 14:30"
+            "❌ Не удалось распознать дату и время\\. Пожалуйста, попробуйте еще раз\\.\n"
+            "Например\\: `25\\.12\\.2023 14\\:30` -- попробуйте такой формат",
+            parse_mode="MarkdownV2"
         )
 
 
@@ -66,7 +68,10 @@ async def confirm_datetime(callback, state: FSMContext):
         await callback.answer("Это действие больше недоступно", show_alert=True)
         return
 
-    await callback.message.answer("Отлично! Теперь укажите продолжительность приступа (например: 30 сек)")
+    await callback.message.answer(
+    "✅ Отлично\\! Теперь укажите продолжительность приступа \\(например\\: `30 сек`\\)",
+    parse_mode="MarkdownV2"
+)
     await state.set_state(AddActionStates.waiting_for_duration)
     await callback.answer()
 
@@ -79,8 +84,9 @@ async def decline_datetime(callback, state: FSMContext):
         return
 
     await callback.message.answer(
-        "Пожалуйста, укажите дату и время приступа снова.\n"
-        "Например: 25.12.2023 14:30"
+        "Пожалуйста, укажите дату и время приступа снова\\.\n"
+        "Например\\: `25\\.12\\.2023 14\\:30` 🔄",
+        parse_mode="MarkdownV2"
     )
     await state.set_state(AddActionStates.waiting_for_datetime)
     await callback.answer()
@@ -113,16 +119,17 @@ async def process_comment(message: Message, state: FSMContext):
     if result:
         interval_msg = f"\nИнтервал: {interval_days} дней с предыдущего приступа" if interval_days is not None else ""
         await message.answer(
-            f"Данные о приступе сохранены:\n"
-            f"Дата и время: {user_data['formatted_date']}\n"
-            f"Продолжительность: {user_data['duration']}\n"
-            f"Комментарий: {comment or 'нет'}{interval_msg}",
-            reply_markup=main_kb()
+            f"✅ Данные о приступе сохранены:\n"
+            f"📅 Дата и время: `{user_data['formatted_date']}`\n"
+            f"⏱️ Продолжительность: `{user_data['duration']}`\n"
+            f"📝 Комментарий: {comment or 'нет'}{interval_msg}",
+            reply_markup=main_kb(),
+            parse_mode="MarkdownV2"
         )
     else:
-        await message.answer("Произошла ошибка при сохранении данных.",
-                            reply_markup=main_kb())
-
+        await message.answer("❌ Произошла ошибка при сохранении данных.",
+                             reply_markup=main_kb(),
+                             parse_mode="MarkdownV2")
     await state.clear()
 
 
@@ -144,15 +151,16 @@ async def no_comment_callback(callback, state: FSMContext):
     if result:
         interval_msg = f"\nИнтервал: {interval_days} дней с предыдущего приступа" if interval_days is not None else ""
         await callback.message.answer(
-            f"Данные о приступе сохранены:\n"
-            f"Дата и время: {user_data['formatted_date']}\n"
-            f"Продолжительность: {user_data['duration']}\n"
-            f"Комментарий: нет{interval_msg}",
-            reply_markup=main_kb()
+            f"✅ Данные о приступе сохранены:\n"
+            f"📅 Дата и время: `{user_data['formatted_date']}`\n"
+            f"⏱️ Продолжительность: `{user_data['duration']}`\n"
+            f"📝 Комментарий: нет{interval_msg}",
+            reply_markup=main_kb(),
+            parse_mode="MarkdownV2"
         )
     else:
-        await callback.message.answer("Произошла ошибка при сохранении данных.",
-                            reply_markup=main_kb())
-
+        await callback.message.answer("❌ Произошла ошибка при сохранении данных.",
+                                      reply_markup=main_kb(),
+                                      parse_mode="MarkdownV2")
     await state.clear()
     await callback.answer()

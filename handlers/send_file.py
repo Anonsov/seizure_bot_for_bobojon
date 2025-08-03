@@ -17,6 +17,6 @@ async def send_file_handler(message: Message):
     checker_admin = is_admin_function(user_id)
     if checker_admin:
         file = FSInputFile(path_to_csv)
-        await message.answer_document(file, caption=f"Вот {checker_admin}")
+        await message.answer_document(file, caption=f"Вот оригинальный файл с данными о судорогах. {checker_admin}")
     else:
         await message.answer("У вас нет прав получать файл")
