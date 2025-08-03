@@ -1,8 +1,12 @@
 import logging
 from aiogram import Bot, Dispatcher
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
+TOKEN = os.getenv('TOKEN')
+# print(TOKEN)
 # ---- CONFIG VARIABLES
-from config import TOKEN, path_to_csv, admin_json
+from config import path_to_csv, admin_json
 # ---- CONFIG VARIABLES
 
 from aiogram.client.default import DefaultBotProperties

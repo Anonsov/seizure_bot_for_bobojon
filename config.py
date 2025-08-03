@@ -1,6 +1,4 @@
 import os
-
-TOKEN = "8230153547:AAEHwU-ctpbQVLveHTTWyuY1ruzyR_RMwe4"
 path_to_csv = os.path.join(os.path.dirname(__file__), "data", "seizure_test.csv")
 path_to_medicine_csv = os.path.join(os.path.dirname(__file__), "data", "medicine_test.csv")
 admin_list = [
