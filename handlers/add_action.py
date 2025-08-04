@@ -8,6 +8,8 @@ from filters.is_admin import is_admin_function
 from keyboards.inline_kb import check_date, no_comment
 from services.csv_manager import csv_manager
 from utils.date_parser import parse_user_datetime, format_datetime_for_csv
+from utils.escape_markdown_v2 import escape_markdown_v2
+
 
 add_action_router = Router()
 
@@ -95,8 +97,16 @@ async def decline_datetime(callback, state: FSMContext):
 @add_action_router.message(AddActionStates.waiting_for_duration)
 async def process_duration(message: Message, state: FSMContext):
     duration = message.text.strip()
+    if not duration.replace(" ", "").replace("сек", "").isdigit():
+        await message.answer(
+            "❌ Неверный формат продолжительности. Укажите продолжительность в секундах, например: `30 сек`.",
+            parse_mode="MarkdownV2"
+        )
+        return
+
     if duration.isdigit():
         duration = f"{duration} сек"
+
     await state.update_data(duration=duration)
     await message.answer(
         "Есть ли комментарии к приступу? Если нет, нажмите кнопку 'Нет'",
@@ -107,7 +117,7 @@ async def process_duration(message: Message, state: FSMContext):
 
 @add_action_router.message(AddActionStates.waiting_for_comment)
 async def process_comment(message: Message, state: FSMContext):
-    comment = message.text
+    comment = message.text.strip() if message.text else "нет"
     user_data = await state.get_data()
 
     result, interval_days = csv_manager.add_seizure_record(
@@ -119,19 +129,22 @@ async def process_comment(message: Message, state: FSMContext):
     if result:
         interval_msg = f"\nИнтервал: {interval_days} дней с предыдущего приступа" if interval_days is not None else ""
         await message.answer(
-            f"✅ Данные о приступе сохранены:\n"
-            f"📅 Дата и время: `{user_data['formatted_date']}`\n"
-            f"⏱️ Продолжительность: `{user_data['duration']}`\n"
-            f"📝 Комментарий: {comment or 'нет'}{interval_msg}",
+            escape_markdown_v2(
+                f"✅ Данные о приступе сохранены:\n"
+                f"📅 Дата и время: `{user_data['formatted_date']}`\n"
+                f"⏱️ Продолжительность: `{user_data['duration']}`\n"
+                f"📝 Комментарий: {comment}{interval_msg}"
+            ),
             reply_markup=main_kb(),
             parse_mode="MarkdownV2"
         )
     else:
-        await message.answer("❌ Произошла ошибка при сохранении данных.",
-                             reply_markup=main_kb(),
-                             parse_mode="MarkdownV2")
+        await message.answer(
+            escape_markdown_v2("❌ Произошла ошибка при сохранении данных."),
+            reply_markup=main_kb(),
+            parse_mode="MarkdownV2"
+        )
     await state.clear()
-
 
 @add_action_router.callback_query(F.data == "no")
 async def no_comment_callback(callback, state: FSMContext):
